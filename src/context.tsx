@@ -46,8 +46,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Context files intentionally export both providers and hooks
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAppContext() {
   return useContext(AppContext);
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export { createInitialState };
