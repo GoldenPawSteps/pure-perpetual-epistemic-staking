@@ -4,11 +4,7 @@ import { priceYes, priceNo, costToBuyYes, costToBuyNo } from './math';
 const INITIAL_BALANCE = 1;
 
 function generateId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  // Fallback for environments without crypto.randomUUID
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+  return crypto.randomUUID();
 }
 
 function getOrCreatePosition(positions: Position[], claimId: string): Position {
