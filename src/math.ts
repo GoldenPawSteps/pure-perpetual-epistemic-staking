@@ -30,10 +30,11 @@ export function cost(y: number, n: number): number {
  * Marginal price of YES: P_YES = 2^y / (2^y + 2^n) = 1 / (1 + 2^(n - y))
  */
 export function priceYes(y: number, n: number): number {
-  // Stable: avoid 2^large numbers
+  // Stable: avoid 2^large numbers.
+  // IEEE-754 double overflows at 2^1024; beyond ±1023 the result saturates to 0 or 1.
   const diff = n - y; // if diff is very negative, P_YES -> 1; if very positive, P_YES -> 0
-  if (diff > 700) return 0; // 2^700 -> Infinity
-  if (diff < -700) return 1;
+  if (diff > 1023) return 0;
+  if (diff < -1023) return 1;
   return 1 / (1 + Math.pow(2, diff));
 }
 
@@ -42,8 +43,8 @@ export function priceYes(y: number, n: number): number {
  */
 export function priceNo(y: number, n: number): number {
   const diff = y - n;
-  if (diff > 700) return 0;
-  if (diff < -700) return 1;
+  if (diff > 1023) return 0;
+  if (diff < -1023) return 1;
   return 1 / (1 + Math.pow(2, diff));
 }
 

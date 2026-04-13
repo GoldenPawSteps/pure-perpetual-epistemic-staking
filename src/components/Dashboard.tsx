@@ -18,7 +18,7 @@ export function Dashboard({ onSelectClaim }: Props) {
   return (
     <div className="dashboard">
       <div className="balance-card">
-        <div className="balance-label">Your Balance</div>
+        <div className="card-balance-label">Your Balance</div>
         <div className="balance-value">{user.balance.toFixed(6)}</div>
         <div className="balance-unit">units</div>
       </div>

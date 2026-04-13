@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAppContext } from '../context';
 
 interface Props {
@@ -15,6 +15,24 @@ export function CreateClaimForm({ onCreated, onCancel }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape key
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
+
+  // Move focus into the modal when it opens
+  useEffect(() => {
+    const first = modalRef.current?.querySelector<HTMLElement>(
+      'input, textarea, button',
+    );
+    first?.focus();
+  }, []);
 
   if (!state) return null;
 
@@ -32,10 +50,17 @@ export function CreateClaimForm({ onCreated, onCancel }: Props) {
 
   return (
     <div className="create-claim-overlay" onClick={onCancel}>
-      <div className="create-claim-modal" onClick={e => e.stopPropagation()}>
+      <div
+        ref={modalRef}
+        className="create-claim-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="create-claim-title"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="modal-header">
-          <h2>New Claim</h2>
-          <button className="close-btn" onClick={onCancel} type="button">×</button>
+          <h2 id="create-claim-title">New Claim</h2>
+          <button className="close-btn" onClick={onCancel} type="button" aria-label="Close">×</button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="field">
@@ -46,7 +71,6 @@ export function CreateClaimForm({ onCreated, onCancel }: Props) {
               value={title}
               onChange={e => { setTitle(e.target.value); setError(''); }}
               placeholder="A clear, falsifiable claim…"
-              autoFocus
               maxLength={200}
             />
           </div>

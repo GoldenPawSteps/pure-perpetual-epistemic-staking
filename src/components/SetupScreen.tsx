@@ -39,6 +39,7 @@ export function SetupScreen() {
         <form onSubmit={handleStart} className="setup-form">
           <input
             type="text"
+            aria-label="Your name"
             placeholder="Enter your name to begin"
             value={name}
             onChange={e => { setName(e.target.value); setError(''); }}

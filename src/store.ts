@@ -263,11 +263,28 @@ function applyTrade(
 
 const STORAGE_KEY = 'ppes_state';
 
+function isValidAppState(obj: unknown): obj is AppState {
+  if (!obj || typeof obj !== 'object') return false;
+  const s = obj as Record<string, unknown>;
+  return (
+    s.user != null && typeof s.user === 'object' &&
+    Array.isArray(s.claims) &&
+    Array.isArray(s.transactions) &&
+    Array.isArray(s.positions) &&
+    s.priceHistory != null && typeof s.priceHistory === 'object'
+  );
+}
+
 export function loadFromStorage(): AppState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as AppState;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isValidAppState(parsed)) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return parsed;
   } catch {
     return null;
   }

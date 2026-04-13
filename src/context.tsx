@@ -7,10 +7,7 @@ interface AppContextValue {
   dispatch: React.Dispatch<AppAction>;
 }
 
-const AppContext = createContext<AppContextValue>({
-  state: null,
-  dispatch: () => {},
-});
+const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(
@@ -48,8 +45,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
 // Context files intentionally export both providers and hooks
 // eslint-disable-next-line react-refresh/only-export-components
-export function useAppContext() {
-  return useContext(AppContext);
+export function useAppContext(): AppContextValue {
+  const ctx = useContext(AppContext);
+  if (ctx === undefined) {
+    throw new Error('useAppContext must be used within AppProvider');
+  }
+  return ctx;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
