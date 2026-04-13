@@ -1,73 +1,82 @@
-# React + TypeScript + Vite
+# Pure Perpetual Epistemic Staking (PPES)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A perpetual prediction and belief-staking system with no oracle and no resolution. Prices represent collective belief strength and run indefinitely.
 
-Currently, two official plugins are available:
+![Main Dashboard](https://github.com/user-attachments/assets/b6efad6e-c9d2-4852-af9d-2460610d08c4)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Overview
 
-## React Compiler
+PPES implements a logarithmic market scoring rule (LMSR) variant based on the cost function:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+C(y, n) = log₂(2ʸ + 2ⁿ) − 1
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Where:
+- `y` = total YES stake on a claim
+- `n` = total NO stake on a claim
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Marginal prices** reflect collective belief strength:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+P_YES = 2ʸ / (2ʸ + 2ⁿ)
+P_NO  = 2ⁿ / (2ʸ + 2ⁿ)
+```
+
+At `y = n = 0`, both prices start at exactly **0.5**.
+
+## Features
+
+- **Perpetual markets** — no resolution, no expiration
+- **Zero-sum** — balance changes according to cost function differences
+- **Every user starts with 1 unit** of balance
+- **Buy / Sell** YES or NO shares on any claim
+- **Price history chart** for each claim
+- **Full transaction log** — auditable, deterministic state
+- **Numerically stable** — uses log-sum-exp technique to avoid overflow
+
+## Setup Screen
+
+![Setup Screen](https://github.com/user-attachments/assets/563c966f-2b34-436d-af1e-f21de1cb4a6f)
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173), enter your name, and start staking.
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm test` | Run math unit tests (31 tests) |
+| `npm run preview` | Preview production build |
+
+## Math
+
+The cost to add `Δy` YES shares is:
+
+```
+Cost(Δy) = C(y + Δy, n) − C(y, n)
+```
+
+Selling `Δy` shares returns:
+
+```
+Receive(Δy) = C(y, n) − C(y − Δy, n)
+```
+
+This system is zero-sum relative to the cost function — what one user spends to push prices, they can recover by selling. No value is created or destroyed outside the cost function.
+
+## Philosophy
+
+This is a **pure epistemic staking system**:
+- No oracle
+- No objective resolution
+- Prices represent collective belief strength
+- The system runs indefinitely
