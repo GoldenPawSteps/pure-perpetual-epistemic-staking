@@ -60,7 +60,7 @@ export function CreateClaimForm({ onCreated, onCancel }: Props) {
       >
         <div className="modal-header">
           <h2 id="create-claim-title">New Claim</h2>
-          <button className="close-btn" onClick={onCancel} type="button" aria-label="Close">×</button>
+          <button className="close-btn" onClick={onCancel} type="button" aria-label="Close dialog">×</button>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="field">

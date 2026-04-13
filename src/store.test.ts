@@ -3,9 +3,9 @@
  * Covers: buy/sell round-trip, balance invariants, cannot oversell.
  */
 import { describe, it, expect } from 'vitest';
-import { createInitialState, reducer } from '../src/store';
-import { costToBuyYes, costToBuyNo } from '../src/math';
-import type { AppState } from '../src/types';
+import { createInitialState, reducer } from './store';
+import { costToBuyYes, costToBuyNo } from './math';
+import type { AppState } from './types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

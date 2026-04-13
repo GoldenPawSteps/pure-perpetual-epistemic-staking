@@ -11,7 +11,7 @@ import {
   costToBuyNo,
   maxYesForBudget,
   maxNoForBudget,
-} from '../src/math';
+} from './math';
 
 const EPS = 1e-9;
 const approx = (a: number, b: number, eps = 1e-6) => Math.abs(a - b) < eps;
