@@ -506,6 +506,109 @@ body {
   margin-left: auto;
 }
 
+/* ─────────────────────────── Activity Section ─────────────────────────── */
+.activity-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--bg);
+  color: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+  min-width: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .activity-item:hover .activity-claim {
+    color: var(--text);
+  }
+}
+
+.activity-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
+.activity-row-top {
+  margin-bottom: 2px;
+}
+
+.activity-type {
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.activity-cost {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.activity-cost.receive {
+  color: var(--yes-color);
+}
+
+.activity-claim {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.activity-time {
+  font-size: 11px;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.activity-show-more {
+  margin-top: 10px;
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .activity-show-more:hover {
+    color: var(--text);
+    border-color: var(--border-light);
+  }
+}
+
 /* ─────────────────────────── Claim List ─────────────────────────── */
 .claim-list {
   display: flex;
