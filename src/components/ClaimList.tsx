@@ -1,5 +1,5 @@
 import type { Claim } from '../types';
-import { priceYes, priceNo } from '../math';
+import { cost, priceYes, priceNo } from '../math';
 import { useAppContext } from '../context';
 
 interface Props {
@@ -25,6 +25,7 @@ export function ClaimList({ claims, onSelectClaim }: Props) {
         const n = claim.noStake;
         const pYes = priceYes(y, n);
         const pNo = priceNo(y, n);
+        const marketCost = cost(y, n);
         const position = state?.positions.find(p => p.claimId === claim.id);
         const hasPosition = position && (position.yesShares > 0 || position.noShares > 0);
 
@@ -55,6 +56,9 @@ export function ClaimList({ claims, onSelectClaim }: Props) {
                 </span>
                 <span className="stat no-stat">
                   NO {(pNo * 100).toFixed(1)}%
+                </span>
+                <span className="stat cost-stat">
+                  Cost: {marketCost.toFixed(3)}
                 </span>
                 <span className="stat stake-stat">
                   Staked: {(y + n).toFixed(2)}

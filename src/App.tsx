@@ -17,6 +17,7 @@ function MainApp() {
   const [showSettings, setShowSettings] = useState(false);
   const homeScrollYRef = useRef(0);
   const shouldRestoreHomeScrollRef = useRef(false);
+  const pendingNavigationFrameRef = useRef<number | null>(null);
 
   // Reset navigation state whenever the active account changes so a new
   // user never lands on the previous user's page.
@@ -28,6 +29,14 @@ function MainApp() {
     homeScrollYRef.current = 0;
     shouldRestoreHomeScrollRef.current = false;
   }, [currentAccountId]);
+
+  useEffect(() => {
+    return () => {
+      if (pendingNavigationFrameRef.current !== null) {
+        cancelAnimationFrame(pendingNavigationFrameRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (view === 'claim' && selectedClaimId) {
@@ -65,8 +74,15 @@ function MainApp() {
       shouldRestoreHomeScrollRef.current = true;
     }
 
-    setSelectedClaimId(id);
-    setView('claim');
+    if (pendingNavigationFrameRef.current !== null) {
+      cancelAnimationFrame(pendingNavigationFrameRef.current);
+    }
+
+    pendingNavigationFrameRef.current = requestAnimationFrame(() => {
+      pendingNavigationFrameRef.current = null;
+      setSelectedClaimId(id);
+      setView('claim');
+    });
   }
 
   function handleBack() {

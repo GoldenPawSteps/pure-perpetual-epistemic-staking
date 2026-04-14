@@ -545,6 +545,7 @@ body {
 
 .yes-stat { color: var(--yes-color); }
 .no-stat { color: var(--no-color); }
+.cost-stat { color: var(--text-muted); }
 .stake-stat { color: var(--text-muted); margin-left: auto; }
 
 /* ─────────────────────────── Claim Detail ─────────────────────────── */

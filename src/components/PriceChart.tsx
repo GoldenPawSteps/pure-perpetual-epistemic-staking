@@ -27,7 +27,9 @@ function formatTimestamp(ts: number): string {
 
 export function PriceChart({ history }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [suppressTooltip, setSuppressTooltip] = useState(false);
+  const interactionsEnabledRef = useRef(false);
+  const [interactionsEnabled, setInteractionsEnabled] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -35,11 +37,12 @@ export function PriceChart({ history }: Props) {
       if (!container) return;
 
       if (container.contains(event.target as Node)) {
-        setSuppressTooltip(false);
         return;
       }
 
-      setSuppressTooltip(true);
+      interactionsEnabledRef.current = false;
+      setInteractionsEnabled(false);
+      setSelectedIndex(null);
     }
 
     document.addEventListener('pointerdown', handlePointerDown, true);
@@ -63,10 +66,45 @@ export function PriceChart({ history }: Props) {
     ts: pt.timestamp,
   }));
 
+  function handleChartClick(nextState: { activeTooltipIndex: number | string | null | undefined }) {
+    if (!interactionsEnabledRef.current) {
+      return;
+    }
+
+    const nextIndex = nextState.activeTooltipIndex;
+    if (nextIndex === undefined || nextIndex === null) {
+      setSelectedIndex(null);
+      return;
+    }
+
+    const parsed = typeof nextIndex === 'number' ? nextIndex : Number(nextIndex);
+    if (Number.isNaN(parsed)) {
+      setSelectedIndex(null);
+      return;
+    }
+
+    setSelectedIndex(parsed);
+  }
+
   return (
-    <div ref={containerRef} className="price-chart">
+    <div
+      ref={containerRef}
+      className="price-chart"
+      onPointerDownCapture={() => {
+        interactionsEnabledRef.current = true;
+        setInteractionsEnabled(true);
+      }}
+      onTouchStartCapture={() => {
+        interactionsEnabledRef.current = true;
+        setInteractionsEnabled(true);
+      }}
+    >
       <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+          onClick={handleChartClick}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="ts"
@@ -84,7 +122,8 @@ export function PriceChart({ history }: Props) {
             tickFormatter={v => v.toFixed(2)}
           />
           <Tooltip
-            active={suppressTooltip ? false : undefined}
+            active={interactionsEnabled && selectedIndex !== null}
+            defaultIndex={selectedIndex ?? undefined}
             labelFormatter={(value) => formatTimestamp(Number(value))}
             formatter={(value) => {
               const num = typeof value === 'number' ? value : Number(value);
@@ -106,7 +145,7 @@ export function PriceChart({ history }: Props) {
             stroke="var(--yes-color)"
             strokeWidth={2}
             dot={false}
-            activeDot={suppressTooltip ? false : { r: 4 }}
+            activeDot={interactionsEnabled && selectedIndex !== null ? { r: 4 } : false}
           />
           <Line
             type="monotone"
@@ -114,7 +153,7 @@ export function PriceChart({ history }: Props) {
             stroke="var(--no-color)"
             strokeWidth={2}
             dot={false}
-            activeDot={suppressTooltip ? false : { r: 4 }}
+            activeDot={interactionsEnabled && selectedIndex !== null ? { r: 4 } : false}
           />
         </LineChart>
       </ResponsiveContainer>
