@@ -27,7 +27,9 @@ export function TradeForm({ claim }: Props) {
 
   if (!state) return null;
 
-  const position = state.positions.find(p => p.claimId === claim.id);
+  const appState = state;
+
+  const position = appState.positions.find(p => p.claimId === claim.id);
   const yesHeld = position?.yesShares ?? 0;
   const noHeld = position?.noShares ?? 0;
 
@@ -66,7 +68,7 @@ export function TradeForm({ claim }: Props) {
 
   function handleMaxClick() {
     if (action === 'BUY') {
-      setAmount(formatAmountInput(state.user.balance));
+      setAmount(formatAmountInput(appState.user.balance));
     } else {
       const maxShares = side === 'YES' ? yesHeld : noHeld;
       setAmount(formatAmountInput(maxShares));
@@ -88,7 +90,7 @@ export function TradeForm({ claim }: Props) {
         ? maxYesForBudget(y, n, parsedAmount)
         : maxNoForBudget(y, n, parsedAmount);
 
-      if (parsedAmount > state!.user.balance + 1e-12) {
+      if (parsedAmount > appState.user.balance + 1e-12) {
         setError('Insufficient balance.');
         return;
       }

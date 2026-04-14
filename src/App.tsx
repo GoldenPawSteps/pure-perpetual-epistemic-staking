@@ -1,21 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppProvider, useAppContext } from './context';
 import { SetupScreen } from './components/SetupScreen';
 import { Dashboard } from './components/Dashboard';
 import { ClaimList } from './components/ClaimList';
 import { ClaimDetail } from './components/ClaimDetail';
 import { CreateClaimForm } from './components/CreateClaimForm';
-import { clearStorage } from './store';
+import { AccountSettings } from './components/AccountSettings';
 
 type View = 'home' | 'claim';
 
 function MainApp() {
-  const { state } = useAppContext();
+  const { authStatus, currentAccountId, state } = useAppContext();
   const [view, setView] = useState<View>('home');
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
-  if (!state) {
+  // Reset navigation state whenever the active account changes so a new
+  // user never lands on the previous user's page.
+  useEffect(() => {
+    setView('home');
+    setSelectedClaimId(null);
+    setShowCreate(false);
+    setShowSettings(false);
+  }, [currentAccountId]);
+
+  if (authStatus === 'loading') {
+    return <SetupScreen mode="loading" />;
+  }
+
+  if (authStatus === 'signed-out' || !state) {
     return <SetupScreen />;
   }
 
@@ -27,13 +41,6 @@ function MainApp() {
   function handleBack() {
     setView('home');
     setSelectedClaimId(null);
-  }
-
-  function handleReset() {
-    if (window.confirm('Reset all data and start over?')) {
-      clearStorage();
-      window.location.reload();
-    }
   }
 
   return (
@@ -49,8 +56,8 @@ function MainApp() {
             <span className="balance-num">{state.user.balance.toFixed(4)}</span>
           </span>
           <span className="user-name">{state.user.name}</span>
-          <button className="reset-btn" onClick={handleReset} title="Reset all data" type="button">
-            ↺
+          <button className="header-btn" onClick={() => setShowSettings(true)} type="button">
+            Account
           </button>
         </div>
       </header>
@@ -93,6 +100,10 @@ function MainApp() {
           }}
           onCancel={() => setShowCreate(false)}
         />
+      )}
+
+      {showSettings && (
+        <AccountSettings onClose={() => setShowSettings(false)} />
       )}
     </div>
   );

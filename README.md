@@ -30,6 +30,7 @@ At `y = n = 0`, both prices start at exactly **0.5**.
 - **Perpetual markets** — no resolution, no expiration
 - **Zero-sum** — balance changes according to cost function differences
 - **Every user starts with 1 unit** of balance
+- **Local authentication** with per-account saved market state
 - **Buy / Sell** YES or NO shares on any claim
 - **Price history chart** for each claim
 - **Full transaction log** — auditable, deterministic state
@@ -46,13 +47,16 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173), enter your name, and start staking.
+Open [http://localhost:5173](http://localhost:5173), create an account or sign in, and start staking.
+
+Authentication now runs through a local backend API in this repo. Account credentials are hashed server-side, session tokens are issued by the API, and market state is persisted per account in the backend data store.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start development server |
+| `npm run start` | Run the compiled auth/state API server |
 | `npm run build` | Build for production |
 | `npm test` | Run math unit tests (31 tests) |
 | `npm run preview` | Preview production build |

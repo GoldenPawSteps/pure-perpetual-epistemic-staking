@@ -91,6 +91,36 @@ body {
   letter-spacing: 0.5px;
 }
 
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-tab {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 12px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.auth-tab:hover {
+  border-color: var(--border-light);
+  color: var(--text);
+}
+
+.auth-tab.active {
+  background: rgba(124, 111, 239, 0.12);
+  border-color: var(--accent);
+  color: var(--accent-hover);
+}
+
 .setup-form {
   display: flex;
   flex-direction: column;
@@ -187,6 +217,23 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.header-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 7px 10px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.header-btn:hover {
+  color: var(--text);
+  border-color: var(--border-light);
+  background: var(--surface-hover);
 }
 
 .user-balance {
@@ -1120,6 +1167,11 @@ body {
   background: var(--accent-hover);
 }
 
+.btn-primary:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 .btn-secondary {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -1135,6 +1187,135 @@ body {
 .btn-secondary:hover {
   color: var(--text);
   border-color: var(--border-light);
+}
+
+/* ─────────────────────────── Account Settings Modal ─────────────────────────── */
+
+.account-settings-modal {
+  max-width: 400px;
+}
+
+.modal-back-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 8px 0 0;
+  transition: color 0.15s;
+}
+
+.modal-back-btn:hover {
+  color: var(--text);
+}
+
+.account-settings-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.account-name-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.account-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.account-name-display {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-action-btn {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: left;
+}
+
+.account-danger-btn {
+  background: none;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: var(--no-color);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.account-danger-btn:hover {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: var(--no-color);
+}
+
+.account-settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.delete-warning {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--no-color);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px 14px;
+}
+
+.delete-warning strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.account-delete-confirm-btn {
+  background: var(--no-color);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #1f0a0a;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  transition: opacity 0.15s;
+}
+
+.account-delete-confirm-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.account-delete-confirm-btn:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.form-success {
+  font-size: 12px;
+  color: var(--yes-color);
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
 }
 
 /* ─────────────────────────── Empty State ─────────────────────────── */

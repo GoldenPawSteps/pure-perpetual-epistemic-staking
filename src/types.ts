@@ -57,4 +57,4 @@ export type AppAction =
   | { type: 'SET_USERNAME'; name: string }
   | { type: 'CREATE_CLAIM'; id: string; title: string; description: string }
   | { type: 'TRADE'; claimId: string; tradeType: TradeType; shares: number }
-  | { type: 'LOAD_STATE'; state: AppState };
+  | { type: 'LOAD_STATE'; state: AppState | null };
