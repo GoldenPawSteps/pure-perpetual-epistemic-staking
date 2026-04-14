@@ -54,10 +54,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (session) {
+        prevStateRef.current = session.state;
+        dispatch({ type: 'LOAD_STATE', state: session.state });
         setCurrentAccountId(session.accountId);
         setCurrentAccountName(session.accountName);
         setAuthStatus('signed-in');
-        dispatch({ type: 'LOAD_STATE', state: session.state });
         return;
       }
 
@@ -87,10 +88,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
 
     prevStateRef.current = result.state;
+    dispatch({ type: 'LOAD_STATE', state: result.state });
     setCurrentAccountId(result.accountId);
     setCurrentAccountName(result.accountName);
     setAuthStatus('signed-in');
-    dispatch({ type: 'LOAD_STATE', state: result.state });
     return { ok: true };
   }
 
@@ -101,10 +102,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
 
     prevStateRef.current = result.state;
+    dispatch({ type: 'LOAD_STATE', state: result.state });
     setCurrentAccountId(result.accountId);
     setCurrentAccountName(result.accountName);
     setAuthStatus('signed-in');
-    dispatch({ type: 'LOAD_STATE', state: result.state });
     return { ok: true };
   }
 

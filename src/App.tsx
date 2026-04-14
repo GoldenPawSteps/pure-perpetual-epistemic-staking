@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppProvider, useAppContext } from './context';
 import { SetupScreen } from './components/SetupScreen';
 import { Dashboard } from './components/Dashboard';
@@ -15,6 +15,8 @@ function MainApp() {
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const homeScrollYRef = useRef(0);
+  const shouldRestoreHomeScrollRef = useRef(false);
 
   // Reset navigation state whenever the active account changes so a new
   // user never lands on the previous user's page.
@@ -23,17 +25,46 @@ function MainApp() {
     setSelectedClaimId(null);
     setShowCreate(false);
     setShowSettings(false);
+    homeScrollYRef.current = 0;
+    shouldRestoreHomeScrollRef.current = false;
   }, [currentAccountId]);
 
-  if (authStatus === 'loading') {
+  useEffect(() => {
+    if (view === 'claim' && selectedClaimId) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, [view, selectedClaimId]);
+
+  useEffect(() => {
+    if (view !== 'home' || !shouldRestoreHomeScrollRef.current) {
+      return;
+    }
+
+    shouldRestoreHomeScrollRef.current = false;
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: homeScrollYRef.current, left: 0, behavior: 'auto' });
+    });
+  }, [view]);
+
+  if (authStatus === 'loading' || (authStatus === 'signed-in' && !state)) {
     return <SetupScreen mode="loading" />;
   }
 
-  if (authStatus === 'signed-out' || !state) {
+  if (authStatus === 'signed-out') {
     return <SetupScreen />;
   }
 
+  const currentState = state;
+  if (!currentState) {
+    return <SetupScreen mode="loading" />;
+  }
+
   function handleSelectClaim(id: string) {
+    if (view === 'home') {
+      homeScrollYRef.current = window.scrollY;
+      shouldRestoreHomeScrollRef.current = true;
+    }
+
     setSelectedClaimId(id);
     setView('claim');
   }
@@ -53,9 +84,9 @@ function MainApp() {
         <div className="header-right">
           <span className="user-balance">
             <span className="balance-label">Balance</span>
-            <span className="balance-num">{state.user.balance.toFixed(4)}</span>
+            <span className="balance-num">{currentState.user.balance.toFixed(4)}</span>
           </span>
-          <span className="user-name">{state.user.name}</span>
+          <span className="user-name">{currentState.user.name}</span>
           <button className="header-btn" onClick={() => setShowSettings(true)} type="button">
             Account
           </button>
@@ -80,7 +111,7 @@ function MainApp() {
                 </button>
               </div>
               <ClaimList
-                claims={state.claims}
+                claims={currentState.claims}
                 onSelectClaim={handleSelectClaim}
               />
             </section>

@@ -27,16 +27,19 @@ function formatTimestamp(ts: number): string {
 
 export function PriceChart({ history }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-  const suppressNextClickRef = useRef(false);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [suppressTooltip, setSuppressTooltip] = useState(false);
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
       const container = containerRef.current;
       if (!container) return;
-      if (container.contains(event.target as Node)) return;
-      setSelectedIndex(null);
+
+      if (container.contains(event.target as Node)) {
+        setSuppressTooltip(false);
+        return;
+      }
+
+      setSuppressTooltip(true);
     }
 
     document.addEventListener('pointerdown', handlePointerDown, true);
@@ -60,72 +63,10 @@ export function PriceChart({ history }: Props) {
     ts: pt.timestamp,
   }));
 
-  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
-    const touch = event.touches[0];
-    if (!touch) return;
-
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-    suppressNextClickRef.current = false;
-  }
-
-  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
-    const touch = event.touches[0];
-    const start = touchStartRef.current;
-    if (!touch || !start) return;
-
-    const deltaX = Math.abs(touch.clientX - start.x);
-    const deltaY = Math.abs(touch.clientY - start.y);
-
-    if (deltaX > 8 || deltaY > 8) {
-      suppressNextClickRef.current = true;
-      setSelectedIndex(null);
-    }
-  }
-
-  function handleTouchEnd() {
-    touchStartRef.current = null;
-  }
-
-  function handleChartClickCapture(event: React.MouseEvent<HTMLDivElement>) {
-    if (!suppressNextClickRef.current) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    suppressNextClickRef.current = false;
-  }
-
-  function handleChartSelect(nextState: { activeTooltipIndex: number | string | null | undefined }) {
-    const nextIndex = nextState.activeTooltipIndex;
-    if (nextIndex === undefined || nextIndex === null) {
-      setSelectedIndex(null);
-      return;
-    }
-
-    const parsed = typeof nextIndex === 'number' ? nextIndex : Number(nextIndex);
-    if (Number.isNaN(parsed)) {
-      setSelectedIndex(null);
-      return;
-    }
-
-    setSelectedIndex(parsed);
-  }
-
   return (
-    <div
-      ref={containerRef}
-      className="price-chart"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
-      onClickCapture={handleChartClickCapture}
-    >
+    <div ref={containerRef} className="price-chart">
       <ResponsiveContainer width="100%" height={220}>
-        <LineChart
-          data={data}
-          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-          onClick={handleChartSelect}
-        >
+        <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="ts"
@@ -143,9 +84,7 @@ export function PriceChart({ history }: Props) {
             tickFormatter={v => v.toFixed(2)}
           />
           <Tooltip
-            active={selectedIndex !== null}
-            defaultIndex={selectedIndex ?? undefined}
-            trigger="hover"
+            active={suppressTooltip ? false : undefined}
             labelFormatter={(value) => formatTimestamp(Number(value))}
             formatter={(value) => {
               const num = typeof value === 'number' ? value : Number(value);
@@ -167,7 +106,7 @@ export function PriceChart({ history }: Props) {
             stroke="var(--yes-color)"
             strokeWidth={2}
             dot={false}
-            activeDot={selectedIndex !== null ? { r: 4 } : false}
+            activeDot={suppressTooltip ? false : { r: 4 }}
           />
           <Line
             type="monotone"
@@ -175,7 +114,7 @@ export function PriceChart({ history }: Props) {
             stroke="var(--no-color)"
             strokeWidth={2}
             dot={false}
-            activeDot={selectedIndex !== null ? { r: 4 } : false}
+            activeDot={suppressTooltip ? false : { r: 4 }}
           />
         </LineChart>
       </ResponsiveContainer>
