@@ -9,6 +9,7 @@ import {
   maxYesForBudget,
   maxNoForBudget,
 } from '../math';
+import { formatAmountInput } from '../number';
 
 interface Props {
   claim: Claim;
@@ -65,10 +66,10 @@ export function TradeForm({ claim }: Props) {
 
   function handleMaxClick() {
     if (action === 'BUY') {
-      setAmount(state!.user.balance.toFixed(6));
+      setAmount(formatAmountInput(state.user.balance));
     } else {
       const maxShares = side === 'YES' ? yesHeld : noHeld;
-      setAmount(maxShares.toFixed(6));
+      setAmount(formatAmountInput(maxShares));
     }
     setError('');
   }
