@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   LineChart,
   Line,
@@ -28,31 +28,15 @@ function formatTimestamp(ts: number): string {
 export function PriceChart({ history }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-  const touchMovedRef = useRef(false);
-
-  function clearActivePoint() {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const eventTargets = [
-      container.querySelector('.recharts-surface'),
-      container.querySelector('.recharts-wrapper'),
-      container,
-    ].filter((node): node is Element => node instanceof Element);
-
-    for (const target of eventTargets) {
-      target.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true }));
-      target.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
-      target.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
-    }
-  }
+  const suppressNextClickRef = useRef(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
       const container = containerRef.current;
       if (!container) return;
       if (container.contains(event.target as Node)) return;
-      clearActivePoint();
+      setSelectedIndex(null);
     }
 
     document.addEventListener('pointerdown', handlePointerDown, true);
@@ -81,28 +65,49 @@ export function PriceChart({ history }: Props) {
     if (!touch) return;
 
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-    touchMovedRef.current = false;
+    suppressNextClickRef.current = false;
   }
 
   function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
-    const start = touchStartRef.current;
     const touch = event.touches[0];
-    if (!start || !touch) return;
+    const start = touchStartRef.current;
+    if (!touch || !start) return;
 
     const deltaX = Math.abs(touch.clientX - start.x);
     const deltaY = Math.abs(touch.clientY - start.y);
 
     if (deltaX > 8 || deltaY > 8) {
-      touchMovedRef.current = true;
+      suppressNextClickRef.current = true;
+      setSelectedIndex(null);
     }
   }
 
-  function resetAfterScrollGesture() {
-    if (!touchMovedRef.current) return;
-
-    touchMovedRef.current = false;
+  function handleTouchEnd() {
     touchStartRef.current = null;
-    clearActivePoint();
+  }
+
+  function handleChartClickCapture(event: React.MouseEvent<HTMLDivElement>) {
+    if (!suppressNextClickRef.current) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    suppressNextClickRef.current = false;
+  }
+
+  function handleChartSelect(nextState: { activeTooltipIndex: number | string | null | undefined }) {
+    const nextIndex = nextState.activeTooltipIndex;
+    if (nextIndex === undefined || nextIndex === null) {
+      setSelectedIndex(null);
+      return;
+    }
+
+    const parsed = typeof nextIndex === 'number' ? nextIndex : Number(nextIndex);
+    if (Number.isNaN(parsed)) {
+      setSelectedIndex(null);
+      return;
+    }
+
+    setSelectedIndex(parsed);
   }
 
   return (
@@ -111,11 +116,16 @@ export function PriceChart({ history }: Props) {
       className="price-chart"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={resetAfterScrollGesture}
-      onTouchCancel={resetAfterScrollGesture}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      onClickCapture={handleChartClickCapture}
     >
       <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+          onClick={handleChartSelect}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
           <XAxis
             dataKey="ts"
@@ -133,6 +143,9 @@ export function PriceChart({ history }: Props) {
             tickFormatter={v => v.toFixed(2)}
           />
           <Tooltip
+            active={selectedIndex !== null}
+            defaultIndex={selectedIndex ?? undefined}
+            trigger="hover"
             labelFormatter={(value) => formatTimestamp(Number(value))}
             formatter={(value) => {
               const num = typeof value === 'number' ? value : Number(value);
@@ -154,7 +167,7 @@ export function PriceChart({ history }: Props) {
             stroke="var(--yes-color)"
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4 }}
+            activeDot={selectedIndex !== null ? { r: 4 } : false}
           />
           <Line
             type="monotone"
@@ -162,7 +175,7 @@ export function PriceChart({ history }: Props) {
             stroke="var(--no-color)"
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4 }}
+            activeDot={selectedIndex !== null ? { r: 4 } : false}
           />
         </LineChart>
       </ResponsiveContainer>
