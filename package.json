@@ -7,6 +7,8 @@
     "dev": "concurrently -k \"npm:dev:client\" \"npm:dev:server\"",
     "dev:client": "vite",
     "dev:server": "tsx watch server/index.ts",
+    "db:reset": "mkdir -p server-data && printf '{\\n  \"accounts\": [],\\n  \"claims\": [],\\n  \"priceHistory\": {}\\n}\\n' > server-data/auth-db.json",
+    "db:seed": "tsx server/seed.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "start": "node dist-server/server/index.js",
