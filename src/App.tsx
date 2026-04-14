@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AppProvider, useAppContext } from './context';
+import { cost } from './math';
 import { SetupScreen } from './components/SetupScreen';
 import { Dashboard } from './components/Dashboard';
 import { ClaimList } from './components/ClaimList';
@@ -8,6 +9,7 @@ import { CreateClaimForm } from './components/CreateClaimForm';
 import { AccountSettings } from './components/AccountSettings';
 
 type View = 'home' | 'claim';
+type ClaimSort = 'cost-desc' | 'newest' | 'oldest' | 'title-asc';
 
 function MainApp() {
   const { authStatus, currentAccountId, state } = useAppContext();
@@ -15,6 +17,7 @@ function MainApp() {
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [claimSort, setClaimSort] = useState<ClaimSort>('cost-desc');
   const homeScrollYRef = useRef(0);
   const shouldRestoreHomeScrollRef = useRef(false);
   const pendingNavigationFrameRef = useRef<number | null>(null);
@@ -68,6 +71,20 @@ function MainApp() {
     return <SetupScreen mode="loading" />;
   }
 
+  const sortedClaims = [...currentState.claims].sort((a, b) => {
+    switch (claimSort) {
+      case 'newest':
+        return b.createdAt - a.createdAt;
+      case 'oldest':
+        return a.createdAt - b.createdAt;
+      case 'title-asc':
+        return a.title.localeCompare(b.title);
+      case 'cost-desc':
+      default:
+        return cost(b.yesStake, b.noStake) - cost(a.yesStake, a.noStake);
+    }
+  });
+
   function handleSelectClaim(id: string) {
     if (view === 'home') {
       homeScrollYRef.current = window.scrollY;
@@ -118,16 +135,32 @@ function MainApp() {
             <section className="home-content">
               <div className="claims-header">
                 <h2 className="page-title">Claims</h2>
-                <button
-                  className="btn-primary new-claim-btn"
-                  onClick={() => setShowCreate(true)}
-                  type="button"
-                >
-                  + New Claim
-                </button>
+                <div className="claims-actions">
+                  <label className="claim-sort-label" htmlFor="claim-sort">
+                    Sort
+                  </label>
+                  <select
+                    id="claim-sort"
+                    className="claim-sort-select"
+                    value={claimSort}
+                    onChange={(e) => setClaimSort(e.target.value as ClaimSort)}
+                  >
+                    <option value="cost-desc">Cost (high to low)</option>
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="title-asc">Title (A-Z)</option>
+                  </select>
+                  <button
+                    className="btn-primary new-claim-btn"
+                    onClick={() => setShowCreate(true)}
+                    type="button"
+                  >
+                    + New Claim
+                  </button>
+                </div>
               </div>
               <ClaimList
-                claims={currentState.claims}
+                claims={sortedClaims}
                 onSelectClaim={handleSelectClaim}
               />
             </section>
