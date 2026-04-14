@@ -1548,7 +1548,15 @@ body {
   }
 
   .user-balance {
+    align-items: flex-end;
+  }
+
+  .balance-label {
     display: none;
+  }
+
+  .balance-num {
+    font-size: 13px;
   }
 
   .header-right {
