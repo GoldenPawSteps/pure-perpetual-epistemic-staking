@@ -1,5 +1,6 @@
 /* ─────────────────────────── CSS Variables ─────────────────────────── */
 :root {
+  --header-height: 56px;
   --bg: #0f1117;
   --surface: #1a1d27;
   --surface-hover: #1f2235;
@@ -184,11 +185,13 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  height: 56px;
+  height: var(--header-height);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
 }
 
@@ -285,7 +288,7 @@ body {
 /* Main content */
 .app-main {
   flex: 1;
-  padding: 24px;
+  padding: calc(24px + var(--header-height)) 24px 24px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -466,12 +469,15 @@ body {
   text-align: left;
   width: 100%;
   min-width: 0;
+  -webkit-tap-highlight-color: transparent;
   transition: border-color 0.15s, background 0.15s;
 }
 
-.claim-card:hover {
-  border-color: var(--accent);
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .claim-card:hover {
+    border-color: var(--accent);
+    background: var(--surface-hover);
+  }
 }
 
 .claim-card-header {
@@ -1136,7 +1142,7 @@ body {
   border-radius: var(--radius-sm);
   color: var(--text);
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: 16px;
   font-family: inherit;
   transition: border-color 0.15s;
   resize: vertical;
@@ -1354,7 +1360,7 @@ body {
 /* Tablet */
 @media (max-width: 768px) {
   .app-main {
-    padding: 16px;
+    padding: calc(16px + var(--header-height)) 16px 16px;
   }
 
   .setup-card {
@@ -1393,7 +1399,7 @@ body {
   }
 
   .app-main {
-    padding: 12px;
+    padding: calc(12px + var(--header-height)) 12px 12px;
   }
 
   .setup-card {
